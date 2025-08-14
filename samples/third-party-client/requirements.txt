@@ -1,0 +1,16 @@
+# Third-Party API Client Dependencies
+
+# HTTP client for synchronous requests
+requests>=2.25.0
+
+# HTTP client for asynchronous requests (optional)
+aiohttp>=3.8.0
+
+# For better JSON handling (optional)
+ujson>=4.0.0
+
+# For better date/time handling (optional)
+python-dateutil>=2.8.0
+
+# For type hints (optional, for development)
+typing-extensions>=4.0.0 

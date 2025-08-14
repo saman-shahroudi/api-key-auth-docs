@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fedshi Integration Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="lib/csv.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fedshi Integration Tool</h1>
+            <p>Streamline shipment processing with Fedshi integration</p>
+        </header>
+
+        <main>
+            <!-- Authentication Section -->
+            <section class="auth-section">
+                <h2>Authentication</h2>
+                
+                <!-- Fedshi Authentication -->
+                <div class="auth-card fedshi">
+                    <h3>Fedshi Authentication</h3>
+                    <div class="form-group">
+                        <label for="fedshiUsername">Email:</label>
+                        <input type="email" id="fedshiUsername" placeholder="Enter Fedshi email">
+                    </div>
+                    <div class="form-group">
+                        <label for="fedshiPassword">Password:</label>
+                        <input type="password" id="fedshiPassword" placeholder="Enter Fedshi password">
+                    </div>
+                    <button onclick="app.loginFedshi()" class="btn btn-primary">
+                        Login to Fedshi
+                    </button>
+                    <div id="fedshiAuthStatus" class="status"></div>
+                </div>
+
+                <!-- Overall Status -->
+                <div class="overall-status">
+                    <h3>System Status</h3>
+                    <div id="overallAuthStatus" class="status overall">
+                        Please login to Fedshi to enable file operations
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Operations Section -->
+            <section class="file-section">
+                <h2>File Operations</h2>
+                
+                <div class="file-cards">
+                    <!-- Fedshi Files Only -->
+                    <div class="file-card">
+                        <h3>Fedshi Files</h3>
+                        <p>Download shipment receipts for orders from Fedshi</p>
+                        <input type="file" accept=".csv" id="fedshiFileInput" disabled>
+                        <button onclick="app.processFedshiFiles()" class="btn btn-warning" disabled>
+                            Download Files
+                        </button>
+                    </div>
+
+                    <!-- Shipment Pack Upload -->
+                    <div class="file-card">
+                        <h3>Shipment Pack Upload</h3>
+                        <p>Upload CSV files to create new shipment packs</p>
+                        <input type="file" accept=".csv" id="shipmentPackInput" disabled>
+                        <button onclick="app.uploadShipmentPack()" class="btn btn-danger" disabled>
+                            Upload Pack
+                        </button>
+                        <div id="shipmentPackStatus" class="status"></div>
+                        
+                        <!-- Shipment Pack Results - Prominent Display -->
+                        <div class="shipment-pack-results-prominent">
+                            <div class="result-summary-prominent">
+                                <h4>📦 Shipment Pack Results</h4>
+                                <div id="shipmentPackSummaryProminent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <h2>Processing Results</h2>
+                
+                <div class="results-tabs">
+                    <button class="tab-btn active" onclick="app.showTab('failed')">Failed Orders</button>
+                    <button class="tab-btn" onclick="app.showTab('success')">Success Log</button>
+                    <button class="tab-btn" onclick="app.showTab('shipmentPack')">Shipment Packs</button>
+                    <button class="tab-btn" onclick="app.showTab('table')">Data Table</button>
+                </div>
+
+                <div id="failedOrders" class="tab-content active">
+                    <h3>Failed Orders</h3>
+                    <ol id="failedOrdersList"></ol>
+                </div>
+
+                <div id="successLog" class="tab-content">
+                    <h3>Success Log</h3>
+                    <div id="successLogContent"></div>
+                </div>
+
+                <div id="shipmentPack" class="tab-content">
+                    <h3>Shipment Pack Results</h3>
+                    <div class="shipment-pack-results">
+                        <div class="result-summary">
+                            <h4>Summary</h4>
+                            <div id="shipmentPackSummary"></div>
+                        </div>
+                        <div class="result-details">
+                            <h4>Recent Operations</h4>
+                            <div id="shipmentPackDetails"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dataTable" class="tab-content">
+                    <h3>Data Table</h3>
+                    <table id="dataTableContent"></table>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Fedshi Integration Tool. Built for operational efficiency.</p>
+        </footer>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html> 

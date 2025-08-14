@@ -1,0 +1,14 @@
+{
+  "fedshi": {
+    "apiKey": "YOUR_FEDSHI_API_KEY_HERE",
+    "secretKey": "YOUR_FEDSHI_SECRET_KEY_HERE",
+    "baseUrl": "https://admin-api.app.fedshi.com",
+    "loginUrl": "https://admin-api.app.fedshi.com/api/v1/third-party/admin/login",
+    "graphqlUrl": "https://admin-api.app.fedshi.com/graphql/third-party"
+  },
+  "app": {
+    "name": "Fedshi Integration Tool",
+    "version": "1.0.0",
+    "description": "Tool for Fedshi services for shipment processing"
+  }
+} 
