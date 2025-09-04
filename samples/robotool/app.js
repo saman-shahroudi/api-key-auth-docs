@@ -9,9 +9,8 @@ class FedshiIntegrationApp {
     constructor() {
         this.config = null;
         this.fedshiClient = null;
-        this.fedshiJwtToken = null;
         this.authenticationStatus = {
-            fedshi: false
+            fedshi: true  // Always true since we're using API key auth
         };
         this.processingResults = {
             failed: [],
@@ -30,7 +29,7 @@ class FedshiIntegrationApp {
             await this.loadConfiguration();
             this.setupEventListeners();
             this.updateAuthenticationStatus();
-            console.log('Fedshi Integration Tool initialized successfully');
+            console.log('Fedshi Integration Tool initialized successfully with API key authentication');
         } catch (error) {
             console.error('Failed to initialize application:', error);
             this.showMessage('Failed to initialize application. Please check the console for details.', 'error');
@@ -86,73 +85,19 @@ class FedshiIntegrationApp {
         }
     }
 
-    /**
-     * Fedshi Authentication
-     */
-    async loginFedshi() {
-        const username = document.getElementById('fedshiUsername').value;
-        const password = document.getElementById('fedshiPassword').value;
-        
-        if (!username || !password) {
-            this.showMessage('Please enter both Fedshi email and password', 'error');
-            return;
-        }
 
-        this.updateStatus('fedshiAuthStatus', 'Authenticating...', 'info');
-
-        try {
-            const loginResult = await this.fedshiClient.authenticate(username, password);
-            
-            if (loginResult && loginResult.Token) {
-                this.fedshiJwtToken = loginResult.Token;
-                this.authenticationStatus.fedshi = true;
-                this.updateStatus('fedshiAuthStatus', 'Authentication successful', 'success');
-                this.showMessage('Fedshi authentication successful', 'success');
-            } else {
-                this.authenticationStatus.fedshi = false;
-                this.updateStatus('fedshiAuthStatus', 'Authentication failed', 'error');
-                this.showMessage('Fedshi authentication failed. Please check your credentials.', 'error');
-            }
-        } catch (error) {
-            console.error('Fedshi authentication error:', error);
-            this.authenticationStatus.fedshi = false;
-            this.updateStatus('fedshiAuthStatus', 'Authentication error', 'error');
-            this.showMessage(`Fedshi authentication error: ${error.message}`, 'error');
-        }
-
-        this.updateAuthenticationStatus();
-    }
 
     /**
-     * Update overall authentication status and enable/disable file operations
+     * Update overall authentication status
      */
     updateAuthenticationStatus() {
-        const fedshiAuthenticated = this.authenticationStatus.fedshi;
-        
-        // Update overall status
+        // Update overall status - always authenticated with API key
         const overallStatus = document.getElementById('overallAuthStatus');
-        if (fedshiAuthenticated) {
-            overallStatus.textContent = 'Fedshi authenticated - File operations enabled';
-            overallStatus.className = 'status overall success';
-        } else {
-            overallStatus.textContent = 'Please login to Fedshi to enable file operations';
-            overallStatus.className = 'status overall error';
-        }
-
-        // Enable/disable file inputs and buttons
-        const fileInputs = ['fedshiFileInput', 'shipmentPackInput'];
+        overallStatus.textContent = 'API Key authenticated - File operations enabled';
+        overallStatus.className = 'status overall success';
         
-        fileInputs.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.disabled = !fedshiAuthenticated;
-            }
-        });
-
-        // Enable buttons based on authentication
-        document.querySelectorAll('.file-card button').forEach(button => {
-            button.disabled = !fedshiAuthenticated;
-        });
+        // File inputs and buttons are already enabled by default in HTML
+        // No need to enable/disable them since we're always authenticated
     }
 
     /**
@@ -517,34 +462,7 @@ class FedshiAPIClient {
         return CryptoJS.HmacSHA256(stringToSign, this.secretKey).toString(CryptoJS.enc.Hex);
     }
 
-    async authenticate(username, password) {
-        const timestamp = new Date().toISOString();
-        const method = 'POST';
-        const path = '/api/v1/third-party/admin/login';
-        const body = JSON.stringify({
-            email: username,
-            password: password
-        });
 
-        const signature = this.generateSignature(method, path, body, timestamp);
-
-        const response = await fetch(`${this.baseUrl}${path}`, {
-            method: 'POST',
-            headers: {
-                'X-API-Key': this.apiKey,
-                'X-API-Signature': signature,
-                'X-API-Timestamp': timestamp,
-                'Content-Type': 'application/json'
-            },
-            body: body
-        });
-
-        if (!response.ok) {
-            throw new Error(`Authentication failed: ${response.status}`);
-        }
-
-        return response.json();
-    }
 
     async makeGraphQLRequest(query, variables = {}) {
         const timestamp = new Date().toISOString();
@@ -560,11 +478,6 @@ class FedshiAPIClient {
             'X-API-Timestamp': timestamp,
             'Content-Type': 'application/json'
         };
-
-        // Add JWT token if available
-        if (window.app && window.app.fedshiJwtToken) {
-            headers['Authorization'] = `Bearer ${window.app.fedshiJwtToken}`;
-        }
 
         const response = await fetch(`${this.baseUrl}${path}`, {
             method: 'POST',
@@ -648,10 +561,7 @@ class FedshiAPIClient {
             'X-API-Timestamp': timestamp
         };
 
-        if (window.app && window.app.fedshiJwtToken) {
-            headers['Authorization'] = `Bearer ${window.app.fedshiJwtToken}`;
-            console.log('DEBUG: processCSVAndCreateShipmentPack - Added JWT token');
-        }
+
 
         try {
             console.log('DEBUG: processCSVAndCreateShipmentPack - Sending request...');
